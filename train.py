@@ -27,8 +27,6 @@ def run_only_decoder():
                       data_collator=qwen_2_5_collator(processor.tokenizer))
     trainer.train()
     trainer.save_model(output_dir)
-    generate_ids = model.generate(eval_dataset[0:2].input_ids, max_length=30)
-    print(generate_ids)
 
 
 if __name__ == '__main__':

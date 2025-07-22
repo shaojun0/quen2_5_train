@@ -5,25 +5,11 @@ import transformers
 IGNORE_INDEX = -100
 
 
-def pad_and_cat(tensor_list):
-    max_length = max(tensor.shape[2] for tensor in tensor_list)
-
-    padded_tensors = []
-    for tensor in tensor_list:
-        pad_length = max_length - tensor.shape[2]
-        padded_tensor = torch.nn.functional.pad(tensor, (0, pad_length), "constant", 1)
-        padded_tensors.append(padded_tensor)
-
-    stacked_tensor = torch.cat(padded_tensors, dim=1)
-
-    return stacked_tensor
-
-
 def qwen_2_5_collator(tokenizer: transformers.PreTrainedTokenizer):
     def collate_fn(instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
-        input_ids, labels, position_ids = tuple(
+        input_ids, labels = tuple(
             [instance[key] for instance in instances]
-            for key in ("input_ids", "labels", "position_ids")
+            for key in ("input_ids", "labels")
         )
         input_ids = [ids.squeeze(0) for ids in input_ids]
         labels = [ids.squeeze(0) for ids in labels]
@@ -33,10 +19,8 @@ def qwen_2_5_collator(tokenizer: transformers.PreTrainedTokenizer):
         labels = torch.nn.utils.rnn.pad_sequence(
             labels, batch_first=True, padding_value=IGNORE_INDEX
         )
-        position_ids = pad_and_cat(position_ids)
         input_ids = input_ids[:, : tokenizer.model_max_length]
         labels = labels[:, : tokenizer.model_max_length]
-        position_ids = position_ids[:, : tokenizer.model_max_length]
         batch = dict(
             input_ids=input_ids,
             labels=labels,
@@ -80,13 +64,6 @@ def qwen_2_5_collator(tokenizer: transformers.PreTrainedTokenizer):
         batch["image_grid_thw"] = grid_thw
         batch["pixel_values_videos"] = concat_videos
         batch["video_grid_thw"] = video_grid_thw
-        batch["position_ids"] = position_ids
-        print("========grid_thw==========")
-        print(grid_thw)
-        for t, h, w in grid_thw:
-            hpos_ids = torch.arange(h).unsqueeze(1).expand(-1, w)
-            print(hpos_ids.shape)
-        print("========hpos_ids==========")
         return batch
 
     return collate_fn
