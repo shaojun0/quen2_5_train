@@ -12,8 +12,8 @@ def run_only_decoder(is_scnet=False):
         dataset_files = "/public/home/scnvewz0f6/SothisAI/dataset/ExternalSource/ImageCaptioning_SmallParquets_old" \
                         "/main/ImageCaptioning_SmallParquets_old"
         model_path = "/work/home/scnbfowvjz/SothisAI/model/Aihub/Qwen2.5-VL-3B-Instruct/main/Qwen2.5-VL-3B-Instruct"
-    train_dataset = load_dataset(dataset_files,split="train[:90%]")
-    eval_dataset = load_dataset(dataset_files,split="train[90%:]")
+    train_dataset = load_dataset(dataset_files,split="train[:1%]")
+    eval_dataset = load_dataset(dataset_files,split="train[1%:2%]")
     output_dir = "outputs"
     training_args = TrainingArguments(output_dir=output_dir,
                                       per_device_train_batch_size=32,
