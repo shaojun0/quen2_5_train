@@ -1,0 +1,12 @@
+[project]
+name = "quen2-5-train"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate==1.8.1",
+    "datasets==4.0.0",
+    "deepspeed==0.17.2",
+    "transformers==4.53.2",
+]
