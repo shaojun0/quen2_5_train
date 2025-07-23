@@ -1,0 +1,6 @@
+apex
+deepspeed>=0.16.6
+nltk
+pybind11
+transformers
+regex
