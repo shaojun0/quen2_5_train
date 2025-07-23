@@ -5,10 +5,15 @@ from collector import qwen_2_5_collator
 from dataset import ImageOnlyDecoderCaptioningDataset
 
 
-def run_only_decoder():
-    train_dataset = load_dataset("Obscure-Entropy/ImageCaptioning_EN-HU",split="train[:90%]")
-    eval_dataset = load_dataset("Obscure-Entropy/ImageCaptioning_EN-HU",split="train[90%:]")
-    model_path = "Qwen/Qwen2.5-VL-3B-Instruct"
+def run_only_decoder(is_scnet=False):
+    dataset_files = "Obscure-Entropy/ImageCaptioning_SmallParquets_old"
+    model_path = "models/Qwen2.5-VL-3B-Instruct"
+    if is_scnet:
+        dataset_files = "/public/home/scnvewz0f6/SothisAI/dataset/ExternalSource/ImageCaptioning_SmallParquets_old" \
+                        "/main/ImageCaptioning_SmallParquets_old"
+        model_path = "/work/home/scnbfowvjz/SothisAI/model/Aihub/Qwen2.5-VL-3B-Instruct/main/Qwen2.5-VL-3B-Instruct"
+    train_dataset = load_dataset(dataset_files,split="train[:90%]")
+    eval_dataset = load_dataset(dataset_files,split="train[90%:]")
     output_dir = "outputs"
     training_args = TrainingArguments(output_dir=output_dir,
                                       per_device_train_batch_size=32,
@@ -29,12 +34,15 @@ def run_only_decoder():
     trainer.save_model(output_dir)
 
 
-def run_only_decoder_deepspeed():
-    torch.npu.config.allow_internal_format=False
-    torch.npu.set_compile_mode(jit_compile=False)
-    train_dataset = load_dataset("data/org_large/acc",split="train[:1%]")
-    eval_dataset = load_dataset("data/org_large/acc",split="train[1%:2%]")
+def run_only_decoder_deepspeed(is_scnet=False):
+    dataset_files = "Obscure-Entropy/ImageCaptioning_SmallParquets_old"
     model_path = "models/Qwen2.5-VL-3B-Instruct"
+    if is_scnet:
+        dataset_files = "/public/home/scnvewz0f6/SothisAI/dataset/ExternalSource/ImageCaptioning_SmallParquets_old" \
+                        "/main/ImageCaptioning_SmallParquets_old"
+        model_path = "/work/home/scnbfowvjz/SothisAI/model/Aihub/Qwen2.5-VL-3B-Instruct/main/Qwen2.5-VL-3B-Instruct"
+    train_dataset = load_dataset(dataset_files,split="train[:1%]")
+    eval_dataset = load_dataset(dataset_files,split="train[1%:2%]")
     output_dir = "outputs"
     deep_speed_path = "DeepSpeedExamples/training/autotuning/hf/dsconfigs/ds_config_fp16_z3.json"
     training_args = TrainingArguments(output_dir=output_dir,
@@ -60,4 +68,4 @@ def run_only_decoder_deepspeed():
 
 
 if __name__ == '__main__':
-    run_only_decoder_deepspeed()
+    run_only_decoder_deepspeed(is_scnet=False)
