@@ -8,5 +8,6 @@ dependencies = [
     "accelerate==1.8.1",
     "datasets==4.0.0",
     "deepspeed==0.17.2",
+    "mpi4py",
     "transformers==4.53.2",
 ]
