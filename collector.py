@@ -67,3 +67,36 @@ def qwen_2_5_collator(tokenizer: transformers.PreTrainedTokenizer):
         return batch
 
     return collate_fn
+
+def florence2_collator(tokenizer: transformers.PreTrainedTokenizer):
+    def collate_fn(instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
+        input_ids, labels = tuple(
+            [instance[key] for instance in instances]
+            for key in ("input_ids", "labels")
+        )
+        input_ids = [ids.squeeze(0) for ids in input_ids]
+
+        labels = [ids.squeeze(0) for ids in labels]
+        input_ids = torch.nn.utils.rnn.pad_sequence(
+            input_ids, batch_first=True, padding_value=tokenizer.pad_token_id
+        )
+        labels = torch.nn.utils.rnn.pad_sequence(
+            labels, batch_first=True, padding_value=IGNORE_INDEX
+        )
+        # position_ids = pad_and_cat(position_ids)
+        input_ids = input_ids[:, : tokenizer.model_max_length]
+        labels = labels[:, : tokenizer.model_max_length]
+        # position_ids = position_ids[:, : tokenizer.model_max_length]
+        images = list(
+            instance["pixel_values"]
+            for instance in instances
+            if "pixel_values" in instance
+        )
+        return dict(
+            input_ids=input_ids,
+            labels=labels,
+            attention_mask=input_ids.ne(tokenizer.pad_token_id),
+            pixel_values=torch.cat([image for image in images], dim=0)
+        )
+
+    return collate_fn
