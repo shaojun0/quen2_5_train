@@ -95,7 +95,6 @@ def florence2_collator(tokenizer: transformers.PreTrainedTokenizer):
         return dict(
             input_ids=input_ids,
             labels=labels,
-            attention_mask=input_ids.ne(tokenizer.pad_token_id),
             pixel_values=torch.cat([image for image in images], dim=0)
         )
 
